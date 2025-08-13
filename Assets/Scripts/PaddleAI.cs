@@ -7,7 +7,7 @@ namespace Rafting
     {
         [SerializeField] float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
         [SerializeField] float _rotateAngle = 3.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
-        [SerializeField] float _loopTime = 2.0f;
+        [SerializeField] float _loopTime = 1.0f;  //시간의 차이가 잘 느껴지지 않음
         [SerializeField] Animator[] _paddles;
         float _duration = 1.0f;     // 애니메이션 재생 시간(초)
         Rigidbody2D _rigidbody;
@@ -21,7 +21,6 @@ namespace Rafting
 
         IEnumerator MoveAndRotate()
         {
-            Debug.Log("coroutine");
             _paddleIdx = Random.Range(0, 4);
             _paddles[_paddleIdx].SetTrigger("PushButton");
             _dir = _paddleIdx % 2 == 0 ? -1 : 1;
