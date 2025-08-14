@@ -7,12 +7,19 @@ namespace Rafting
     {
         Rigidbody2D _rigidbody;
         [SerializeField] float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
-        [SerializeField] float _rotateAngle = 3.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
+        [SerializeField] float _rotateAngle = 1.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
         [SerializeField] Animator[] _paddles;
         float _duration = 1.0f;     // 애니메이션 재생 시간(초)
+        float _force = 5f;
+        private Vector2 lastVelocity;    // 이전 종료 속도 (필요하면)
+        private float lastRotation;      // 이전 종료 각도
         private void Start()
         {
             _rigidbody = GetComponent<Rigidbody2D>();
+
+            // 초기 저장
+            lastVelocity = _rigidbody.linearVelocity;
+            lastRotation = _rigidbody.rotation;
         }
         void OnLeftUp()  //a0
         {
@@ -37,11 +44,12 @@ namespace Rafting
         
         IEnumerator MoveAndRotate(int dir)
         {
-            Vector2 startPos = _rigidbody.position;
-            Vector2 targetPos = startPos + Vector2.right * _moveDistance;
+            // 시작 시점 위치/회전 고정
+            Vector2 startVelocity = _rigidbody.linearVelocity;
+            Vector2 targetVelocity = Vector2.right.normalized * _force;
 
-            float startRot = _rigidbody.rotation;
-            float targetRot = startRot + dir * _rotateAngle;
+            float startRotation = _rigidbody.rotation;
+            float targetRotation = startRotation + dir * _rotateAngle;
 
             float elapsed = 0f;
 
@@ -50,20 +58,23 @@ namespace Rafting
                 elapsed += Time.fixedDeltaTime;
                 float t = elapsed / _duration;
 
-                // 위치 보간
-                Vector2 newPos = Vector2.Lerp(startPos, targetPos, t);
-                _rigidbody.MovePosition(newPos);
+                // 속도 보간
+                _rigidbody.linearVelocity = Vector2.Lerp(startVelocity, targetVelocity, t);
 
                 // 회전 보간
-                float newRot = Mathf.Lerp(startRot, targetRot, t);
+                float newRot = Mathf.LerpAngle(startRotation, targetRotation, t);
                 _rigidbody.MoveRotation(newRot);
 
                 yield return new WaitForFixedUpdate();
             }
 
-            // 최종 위치/각도 정밀 보정
-            _rigidbody.MovePosition(targetPos);
-            _rigidbody.MoveRotation(targetRot);
+            // 최종 위치 및 회전 확정
+            _rigidbody.linearVelocity = targetVelocity;
+            _rigidbody.MoveRotation(targetRotation);
+
+            // ★ 종료 상태 저장
+            lastVelocity = _rigidbody.linearVelocity;
+            lastRotation = _rigidbody.rotation;
         }
     }
 }
