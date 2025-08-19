@@ -6,8 +6,8 @@ namespace Rafting
     public class PaddleInput : MonoBehaviour
     {
         Rigidbody2D _rigidbody;
-        [SerializeField] float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
-        [SerializeField] float _rotateAngle = 1.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
+        [SerializeField] float _moveDistance; // 이동 거리 (엑스축 기준)
+        [SerializeField] float _rotateAngle;  // 회전 각도 (제트축) 양수면 위로 음수면 아래로
         [SerializeField] Animator[] _paddles;
         float _duration = 1.0f;     // 애니메이션 재생 시간(초)
         float _force = 5f;
