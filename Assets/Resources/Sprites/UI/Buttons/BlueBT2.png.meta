@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      BlueBT2_0: 3917064913531627527
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

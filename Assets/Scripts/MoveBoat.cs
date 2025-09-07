@@ -24,7 +24,7 @@ namespace Rafting
             lastVelocity = _rigidbody.linearVelocity;
             lastRotation = _rigidbody.rotation;
         }
-        protected IEnumerator MoveAndRotate(int totalDir, int inputCount)
+        protected IEnumerator MoveAndRotateCo(int totalDir, int inputCount)
         {
             // 시작 시점 위치/회전 고정
             Vector2 startVelocity = _rigidbody.linearVelocity;
