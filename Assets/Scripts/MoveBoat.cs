@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace Rafting
 {
@@ -134,9 +135,15 @@ namespace Rafting
                 PlayerInput playerInput = GetComponent<PlayerInput>();
                 if (playerInput != null)
                 {
-                    playerInput.DeactivateInput();                
+                    playerInput.DeactivateInput();
                 }
+                StartCoroutine(GameOverCo());
             }
+        }
+        IEnumerator GameOverCo()
+        {
+            yield return new WaitForSeconds(3f);
+            SceneManager.LoadScene("LobbyScene");
         }
     }
 }
