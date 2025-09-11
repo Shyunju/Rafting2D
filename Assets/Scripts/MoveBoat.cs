@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Rafting
@@ -5,50 +7,106 @@ namespace Rafting
     // 이제 MoveBoat는 싱글톤으로 관리되어 NetWorkManager에서 쉽게 접근할 수 있습니다.
     public class MoveBoat : Singleton<MoveBoat>
     {
-        protected Rigidbody2D _rigidbody;
+        [SerializeField] protected float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
+        [SerializeField] protected float _rotateAngle = 1.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
         [SerializeField] protected Animator[] _paddles;
-
-        // 서버로부터 받은 타겟 위치 및 회전 값
-        private Vector2 _targetPosition;
-        private float _targetRotation;
-
+        [SerializeField] protected float _loopTime = 1.0f;  //시간의 차이가 잘 느껴지지 않음
         // 보간 속도 (값이 클수록 더 빠르게 서버 상태를 따라잡습니다)
         [SerializeField] private float _interpolationSpeed = 15f;
+        protected Rigidbody2D _rigidbody;
+        protected float _duration = 1.0f;     // 애니메이션 재생 시간(초)
+        protected float _force = 5f;
+        protected private Vector2 lastVelocity;    // 이전 종료 속도 (필요하면)
+        protected float lastRotation;      // 이전 종료 각도
+        protected int _paddleIdx;
+        protected int _dir;
 
-        protected override void OnAwake()
+        // 동시 입력을 처리하기 위한 변수
+        readonly List<int> _pendingDirections = new List<int>();
+        Coroutine _inputProcessingCoroutine;
+        const float INPUT_COLLECTION_TIME = 0.1f; // 입력을 수집하는 시간 (초)  협력성을 고려하면 더 길게 해야할지도
+
+        protected virtual void Start()
         {
-            base.OnAwake();
             _rigidbody = GetComponent<Rigidbody2D>();
-            
-            // 시작 시 타겟 위치를 현재 위치로 초기화하여 순간이동 방지
-            _targetPosition = transform.position;
-            _targetRotation = _rigidbody.rotation;
+
+            // 초기 저장
+            lastVelocity = _rigidbody.linearVelocity;
+            lastRotation = _rigidbody.rotation;
         }
 
-        private void FixedUpdate()
+        protected IEnumerator MoveAndRotateCo(int totalDir, int inputCount)
         {
-            // 현재 위치/회전을 서버가 보내준 타겟 값으로 부드럽게 보간합니다.
-            Vector2 newPosition = Vector2.Lerp(transform.position, _targetPosition, Time.fixedDeltaTime * _interpolationSpeed);
-            float newRotation = Mathf.LerpAngle(_rigidbody.rotation, _targetRotation, Time.fixedDeltaTime * _interpolationSpeed);
+            // 시작 시점 위치/회전 고정
+            Vector2 startVelocity = _rigidbody.linearVelocity;
+            // 입력 수에 비례하여 힘 증가
+            Vector2 targetVelocity = Vector2.right.normalized * (_force * inputCount);
 
-            _rigidbody.MovePosition(newPosition);
-            _rigidbody.MoveRotation(newRotation);
+            float startRotation = _rigidbody.rotation;
+            // 모든 입력의 방향을 합산하여 회전 각도 계산
+            float targetRotation = startRotation + totalDir * _rotateAngle;
+
+            float elapsed = 0f;
+
+            while (elapsed < _duration)
+            {
+                elapsed += Time.fixedDeltaTime;
+                float t = elapsed / _duration;
+
+                // 속도 보간
+                _rigidbody.linearVelocity = Vector2.Lerp(startVelocity, targetVelocity, t);
+
+                // 회전 보간
+                float newRot = Mathf.LerpAngle(startRotation, targetRotation, t);
+                _rigidbody.MoveRotation(newRot);
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            // 최종 위치 및 회전 확정
+            _rigidbody.linearVelocity = targetVelocity;
+            _rigidbody.MoveRotation(targetRotation);
+
+            // ★ 종료 상태 저장
+            lastVelocity = _rigidbody.linearVelocity;
+            lastRotation = _rigidbody.rotation;
         }
 
-        /// <summary>
-        /// 서버로부터 보트의 상태 업데이트를 받으면 호출될 함수입니다.
-        /// </summary>
-        /// <param name="position">서버가 계산한 새로운 위치</param>
-        /// <param name="rotation">서버가 계산한 새로운 회전값</param>
-        public void OnServerStateUpdate(Vector2 position, float rotation)
+        // 입력 처리 로직
+        public void ProcessInput(int dir)
         {
-            _targetPosition = position;
-            _targetRotation = rotation;
+            _pendingDirections.Add(dir);
+            if (_inputProcessingCoroutine == null)
+            {
+                _inputProcessingCoroutine = StartCoroutine(ProcessPendingInputs());
+            }
         }
 
-        // TODO: 서버로부터 받은 애니메이션 트리거 이벤트에 따라 아래 함수들을 호출해야 합니다.
-        // 예를 들어, 서버가 "Player 1 paddled left"라는 이벤트를 보내면,
-        // 클라이언트는 그에 맞는 노의 애니메이션을 재생해야 합니다.
+        IEnumerator ProcessPendingInputs()
+        {
+            Debug.Log("Starting to collect inputs...");
+            // 짧은 시간 동안 추가 입력을 기다림
+            yield return new WaitForSeconds(INPUT_COLLECTION_TIME);
+
+            int totalDir = 0;
+            foreach (int dir in _pendingDirections)
+            {
+                totalDir += dir;
+            }
+
+            int inputCount = _pendingDirections.Count;
+
+            _pendingDirections.Clear();
+            _inputProcessingCoroutine = null;
+
+            if (inputCount > 0)
+            {
+                // 수집된 입력을 기반으로 이동 및 회전 실행
+                StartCoroutine(MoveAndRotateCo(totalDir, inputCount));
+            }
+        }
+
+        // 서버에서 받아서 노의 애니메이션을 재생
         public void TriggerPaddleAnimation(int paddleIndex)
         {
             Debug.Log($"Triggering paddle animation for paddle index: {paddleIndex}");

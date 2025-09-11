@@ -18,6 +18,12 @@ namespace Rafting
         public const string ROOMREMOVE = "43";
         public const string FINDANDJOIN = "44";
 
+        // BOAT POSITION (ROOM VARIABLE)
+        public const string BOAT_POS_X = "30";
+        public const string BOAT_POS_Y = "31";
+        public const string BOAT_POS_Z = "32";
+        public const string GAME_TYPE = "33";
+
         //ROOM STATE
         public const string ROOM_OWNER_ID = "49";
         public const string ROOM_STATE = "45";

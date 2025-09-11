@@ -64,7 +64,7 @@ public class FindAndJoinRoomHandler extends BaseClientRequestHandler {
                 settings.setAutoRemoveMode(com.smartfoxserver.v2.entities.SFSRoomRemoveMode.WHEN_EMPTY);
 
                 // Set the Room Extension for this room
-                settings.setExtension("weaving-playasone", "weaving.playasone.RaftingRoomExtension");
+                settings.setExtension(new CreateRoomSettings.RoomExtensionSettings("PlayAsOneExtension", "weaving.playasone.GameRoomExtension"));
 
                 // Create the room and join the user
                 // 네 번째 인자(joinIt)를 true로 설정하여 방 생성자가 즉시 입장하도록 합니다.

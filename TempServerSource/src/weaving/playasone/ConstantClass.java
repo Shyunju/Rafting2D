@@ -15,6 +15,12 @@ public class ConstantClass {
 	public static final String ROOMREMOVE          	= "43";
 	public static final String FINDANDJOIN         	= "44";
 
+	// BOAT POSITION (ROOM VARIABLE)
+	public static final String BOAT_POS_X           = "30";
+	public static final String BOAT_POS_Y           = "31";
+	public static final String BOAT_POS_Z           = "32";
+	public static final String GAME_TYPE            = "33";
+
 	//ROOM STATE
 	public static final String ROOM_OWNER_ID 		= "49";
 	public static final String ROOM_STATE 			= "45";

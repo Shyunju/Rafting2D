@@ -1,7 +1,8 @@
 using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Rafting
 {
@@ -20,7 +21,7 @@ namespace Rafting
                 data.PutInt("pidx", pidx);
 
                 // ExtensionRequest를 생성하여 서버의 "paddle" 핸들러로 데이터를 UDP로 전송합니다.
-                sfs.Send(new ExtensionRequest(ConstantClass.PADDLE_REQUEST, data, sfs.LastJoinedRoom, false)); // true for UDP
+                sfs.Send(new ExtensionRequest(ConstantClass.PADDLE_REQUEST, data, sfs.LastJoinedRoom, false));
             }
             else
             {

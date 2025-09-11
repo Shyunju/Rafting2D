@@ -77,7 +77,7 @@ namespace Rafting
             {
                 // 방장인 경우, 게임 시작 요청을 보냅니다.
                 Debug.Log("You are the room owner. Sending Start Game request...");
-                StartGameSender.Send();
+                //StartGameSender.Send();
             }
             else
             {

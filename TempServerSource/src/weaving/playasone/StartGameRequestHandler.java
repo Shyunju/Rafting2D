@@ -27,6 +27,28 @@ public class StartGameRequestHandler extends BaseClientRequestHandler {
 
         getApi().setRoomVariables(user, currentRoom, roomVariables);
 
+        // Initialize game-specific Room Variables (e.g., for Rafting game)
+        // GAME_TYPE
+        SFSRoomVariable gameTypeVar = new SFSRoomVariable(ConstantClass.GAME_TYPE, "RaftingGame");
+        gameTypeVar.setGlobal(true);
+        roomVariables.add(gameTypeVar);
+
+        // BOAT_POS_X, Y, Z
+        SFSRoomVariable boatPosX = new SFSRoomVariable(ConstantClass.BOAT_POS_X, 0.0f);
+        boatPosX.setGlobal(true);
+        roomVariables.add(boatPosX);
+
+        SFSRoomVariable boatPosY = new SFSRoomVariable(ConstantClass.BOAT_POS_Y, 0.0f);
+        boatPosY.setGlobal(true);
+        roomVariables.add(boatPosY);
+
+        SFSRoomVariable boatPosZ = new SFSRoomVariable(ConstantClass.BOAT_POS_Z, 0.0f);
+        boatPosZ.setGlobal(true);
+        roomVariables.add(boatPosZ);
+
+        // Set all new Room Variables
+        getApi().setRoomVariables(user, currentRoom, roomVariables);
+
         
 
         trace(String.format("Room '%s' state changed to PLAYING by user '%s'.", currentRoom.getName(), user.getName()));

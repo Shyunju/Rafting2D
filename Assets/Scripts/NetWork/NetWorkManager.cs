@@ -169,22 +169,14 @@ namespace Rafting
 
             switch (cmd)
             {
-                case ConstantClass.GAME_STATE_UPDATE: // Game State Update
-                    if (MoveBoat.Instance != null)
-                    {
-                        // 서버가 보낸 위치/회전 값으로 보트 상태 업데이트
-                        Vector2 pos = new Vector2(data.GetFloat(ConstantClass.X), data.GetFloat(ConstantClass.Y));
-                        float rot = data.GetFloat(ConstantClass.Z);
-                        MoveBoat.Instance.OnServerStateUpdate(pos, rot);
-                    }
-                    break;
-
                 case ConstantClass.PADDLE_ANIMATION: // Paddle Animation
                     if (MoveBoat.Instance != null)
                     {
                         Debug.Log("Received paddle animation command from server.");
                         int paddleIndex = data.GetInt("pIdx");
+                        int direction = data.GetInt("dir");
                         MoveBoat.Instance.TriggerPaddleAnimation(paddleIndex);
+                        MoveBoat.Instance.ProcessInput(direction);
                     }
                     break;
             }

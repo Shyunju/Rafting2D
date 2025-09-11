@@ -19,6 +19,7 @@ public class PlayAsOneExtension extends SFSExtension {
     
 	    // Zone Level Request Handlers
 	    addRequestHandler(ConstantClass.KEEPALIVE, PingPongHandler.class);
+	    addRequestHandler(ConstantClass.FINDANDJOIN, FindAndJoinRoomHandler.class);
         addRequestHandler(ConstantClass.START_GAME_REQUEST, StartGameRequestHandler.class);
 	    addRequestHandler(ConstantClass.ROOMREMOVE, RemoveRoomHandler.class);
 	    
