@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Rafting
 {
     // 이제 MoveBoat는 싱글톤으로 관리되어 NetWorkManager에서 쉽게 접근할 수 있습니다.
     public class MoveBoat : MonoBehaviour
     {
-        [SerializeField] protected float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
         [SerializeField] protected float _rotateAngle = 1.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
         [SerializeField] protected Animator[] _paddles;
-        
+
         // 보간 속도 (값이 클수록 더 빠르게 서버 상태를 따라잡습니다)
         [SerializeField] private float _interpolationSpeed = 15f;
         protected Rigidbody2D _rigidbody;
@@ -113,6 +113,29 @@ namespace Rafting
             if (paddleIndex >= 0 && paddleIndex < _paddles.Length)
             {
                 _paddles[paddleIndex].SetTrigger("PushButton");
+            }
+        }
+
+        void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.tag == "Finish")
+            {
+                PaddleAI paddleAI = GetComponent<PaddleAI>();
+                if (paddleAI != null)
+                {
+                    GameUIManager.Instance.ResultText.text = "defeat";
+                }
+                else
+                {
+                    GameUIManager.Instance.ResultText.text = "win";
+                }
+                GameUIManager.Instance.FinishText.SetActive(true);
+                StopAllCoroutines();
+                PlayerInput playerInput = GetComponent<PlayerInput>();
+                if (playerInput != null)
+                {
+                    playerInput.DeactivateInput();                
+                }
             }
         }
     }
