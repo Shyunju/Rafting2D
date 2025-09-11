@@ -1,14 +1,17 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.AI;
 
 namespace Rafting
 {
     public class PaddleAI : MoveBoat
     {
-
+        [SerializeField] float _loopTime;
+        [SerializeField] float _enemySpeed;
         protected override void Start()
         {
             base.Start();
+            _force = _enemySpeed;
             StartCoroutine(SetDirectionCo());
         }
 

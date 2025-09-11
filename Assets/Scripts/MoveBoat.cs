@@ -10,7 +10,7 @@ namespace Rafting
         [SerializeField] protected float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
         [SerializeField] protected float _rotateAngle = 1.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로
         [SerializeField] protected Animator[] _paddles;
-        [SerializeField] protected float _loopTime = 1.0f;  //시간의 차이가 잘 느껴지지 않음
+        
         // 보간 속도 (값이 클수록 더 빠르게 서버 상태를 따라잡습니다)
         [SerializeField] private float _interpolationSpeed = 15f;
         protected Rigidbody2D _rigidbody;
