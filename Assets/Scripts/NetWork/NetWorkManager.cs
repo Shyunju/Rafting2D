@@ -156,6 +156,7 @@ namespace Rafting
                         {
                             // TODO: 게임 시작에 따른 클라이언트 로직을 여기에 구현합니다.
                             // 예: '게임 시작' 버튼 비활성화, 카운트다운 시작 등
+                            LobbyUI.Instance?.RaftingGameScene();
                         }
                     }
                 }
