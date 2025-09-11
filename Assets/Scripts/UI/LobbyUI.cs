@@ -77,7 +77,8 @@ namespace Rafting
             {
                 // 방장인 경우, 게임 시작 요청을 보냅니다.
                 Debug.Log("You are the room owner. Sending Start Game request...");
-                //StartGameSender.Send();
+                StartGameSender.Send();
+                SceneManager.LoadScene("MainScene");
             }
             else
             {
@@ -85,8 +86,6 @@ namespace Rafting
                 Debug.LogWarning("Only the room owner can start the game.");
                 // TODO: 여기에 "방장만 게임을 시작할 수 있습니다." 라는 UI 텍스트를 표시하는 로직을 추가할 수 있습니다.
             }
-
-            SceneManager.LoadScene("MainScene");
         }
     }
 }

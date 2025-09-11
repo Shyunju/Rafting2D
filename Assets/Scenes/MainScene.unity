@@ -2567,11 +2567,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isDontDestroy: 0
+  _moveDistance: 0.5
+  _rotateAngle: 1
   _paddles:
   - {fileID: 309723281}
   - {fileID: 2022010996}
   - {fileID: 601386380}
   - {fileID: 1795792815}
+  _loopTime: 1
   _interpolationSpeed: 15
 --- !u!114 &509917671
 MonoBehaviour:
@@ -6092,6 +6095,7 @@ GameObject:
   - component: {fileID: 1450807446}
   - component: {fileID: 1450807449}
   - component: {fileID: 1450807448}
+  - component: {fileID: 1450807450}
   m_Layer: 0
   m_Name: BoatAI
   m_TagString: Untagged
@@ -6182,6 +6186,24 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1450807450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1450807445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9b504319bef8d04ebbf5d85e4492da7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isDontDestroy: 0
+  _moveDistance: 0.5
+  _rotateAngle: 1
+  _paddles: []
+  _loopTime: 1
+  _interpolationSpeed: 15
 --- !u!1 &1519506999
 GameObject:
   m_ObjectHideFlags: 0

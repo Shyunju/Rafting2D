@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Rafting
 {
     // 이제 MoveBoat는 싱글톤으로 관리되어 NetWorkManager에서 쉽게 접근할 수 있습니다.
-    public class MoveBoat : Singleton<MoveBoat>
+    public class MoveBoat : MonoBehaviour
     {
         [SerializeField] protected float _moveDistance = 0.5f; // 이동 거리 (엑스축 기준)
         [SerializeField] protected float _rotateAngle = 1.0f;  // 회전 각도 (제트축) 야수면 위로 음수면 아래로

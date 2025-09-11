@@ -8,6 +8,15 @@ namespace Rafting
 {
     public class PaddleInput : MoveBoat
     {
+        static PaddleInput _instance;
+
+        public static PaddleInput Instance { get { return _instance; } }
+
+        void Awake()
+        {
+            _instance = this;
+        }
+
         // 입력 처리 로직: 서버로 노 젓기 데이터를 전송합니다.
         private void SendPaddleInput(int dir, int pidx)
         {

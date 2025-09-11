@@ -5,7 +5,8 @@ namespace Rafting
 {
     public class PaddleAI : MoveBoat
     {
-        void Start()
+
+        protected override void Start()
         {
             base.Start();
             StartCoroutine(SetDirectionCo());

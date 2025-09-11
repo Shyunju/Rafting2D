@@ -170,13 +170,13 @@ namespace Rafting
             switch (cmd)
             {
                 case ConstantClass.PADDLE_ANIMATION: // Paddle Animation
-                    if (MoveBoat.Instance != null)
+                    if (PaddleInput.Instance != null)
                     {
                         Debug.Log("Received paddle animation command from server.");
                         int paddleIndex = data.GetInt("pIdx");
                         int direction = data.GetInt("dir");
-                        MoveBoat.Instance.TriggerPaddleAnimation(paddleIndex);
-                        MoveBoat.Instance.ProcessInput(direction);
+                        PaddleInput.Instance.TriggerPaddleAnimation(paddleIndex);
+                        PaddleInput.Instance.ProcessInput(direction);
                     }
                     break;
             }
