@@ -17,6 +17,27 @@ namespace Rafting
             _instance = this;
         }
 
+        protected override void Start()
+        {
+            base.Start();
+            // 게임이 시작되면 입력 비활성화 상태로 시작합니다.
+            SetInputEnabled(false);
+        }
+
+        private bool _isInputEnabled = false;
+
+        /// <summary>
+        /// 내부 플래그를 사용하여 입력 처리를 제어합니다.
+        /// </summary>
+        public void SetInputEnabled(bool isEnabled)
+        {
+            _isInputEnabled = isEnabled;
+            if (isEnabled)
+                Debug.Log("PaddleInput has been enabled.");
+            else
+                Debug.Log("PaddleInput has been disabled.");
+        }
+
         // 입력 처리 로직: 서버로 노 젓기 데이터를 전송합니다.
         private void SendPaddleInput(int dir, int pidx)
         {
@@ -40,22 +61,22 @@ namespace Rafting
 
         void OnLeftUp()  //a0
         {
-            // _paddles[0].SetTrigger("PushButton"); // Handled by server response
+            if (!_isInputEnabled) return;
             SendPaddleInput(-1, 0);
         }
         void OnLeftDown()  //s1
         {
-            // _paddles[1].SetTrigger("PushButton"); // Handled by server response
+            if (!_isInputEnabled) return;
             SendPaddleInput(1, 1);
         }
         void OnRightUp() //d2
         {
-            // _paddles[2].SetTrigger("PushButton"); // Handled by server response
+            if (!_isInputEnabled) return;
             SendPaddleInput(-1, 2);
         }
         void OnRightDown()  //f3
         {
-            // _paddles[3].SetTrigger("PushButton"); // Handled by server response
+            if (!_isInputEnabled) return;
             SendPaddleInput(1, 3);
         }
     }

@@ -2,38 +2,32 @@ package weaving.playasone;
 
 public class ConstantClass {
 	
-	// Character
-	public static final String X                    = "19";
-	public static final String Y                    = "20";
-	public static final String Z                    = "21";
+	public static final String GAME_TYPE            = "10";
 
-	
 	//ROOM VARIABLE
-	public static final String ROOMNAME          	= "40";
-	public static final String ISPUBLIC          	= "41";
-	public static final String MAXUSERCNT          	= "42";
-	public static final String ROOMREMOVE          	= "43";
-	public static final String FINDANDJOIN         	= "44";
-
-	// BOAT POSITION (ROOM VARIABLE)
-	public static final String BOAT_POS_X           = "30";
-	public static final String BOAT_POS_Y           = "31";
-	public static final String BOAT_POS_Z           = "32";
-	public static final String GAME_TYPE            = "33";
-
+	public static final String ROOMNAME          	= "20";
+	public static final String ISPUBLIC          	= "21";
+	public static final String MAXUSERCNT          	= "22";
+	public static final String ROOMREMOVE          	= "23";
+	public static final String FINDANDJOIN         	= "24";
+	
 	//ROOM STATE
-	public static final String ROOM_OWNER_ID 		= "49";
-	public static final String ROOM_STATE 			= "45";
-	public static final String STATE_WAITING 		= "46";
-	public static final String STATE_PLAYING 		= "47";
+	public static final String ROOM_OWNER_ID 		= "25";
+	public static final String ROOM_STATE 			= "26";
+	public static final String STATE_WAITING 		= "27";
+	public static final String STATE_PLAYING 		= "28";	
 
 	//GAMEPLAY REQUESTS
-	public static final String START_GAME_REQUEST 	= "48";
-	public static final String PADDLE_REQUEST 		= "105"; // New: Paddle input request
+	public static final String START_GAME_REQUEST 	= "30";
+	public static final String COUNTDOWN_RESPONSE 	= "30";
+	
+	
+	// Rafting Game
+	public static final String PADDLE_REQUEST 		= "40";
+	public static final String PADDLE_ANIMATION 	= "41"; 
 
-	// SERVER RESPONSES / GAME STATE UPDATES
-	public static final String GAME_STATE_UPDATE 	= "201"; // New: Game state update from server
-	public static final String PADDLE_ANIMATION 	= "202"; // New: Paddle animation trigger from server
+	// WAITING ROOM
+	public static final String UPDATE_USER_LIST 	= "50"; 
 	
 	//HANDLER
 	public static final String KEEPALIVE			= "1000";

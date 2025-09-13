@@ -4,7 +4,6 @@ using Sfs2X.Util;
 using Sfs2X.Core;
 using Sfs2X.Entities;
 using Sfs2X.Requests;
-using UnityEngine.SceneManagement;
 using Sfs2X.Entities.Data;
 
 namespace Rafting
@@ -178,6 +177,26 @@ namespace Rafting
                         int direction = data.GetInt("dir");
                         PaddleInput.Instance.TriggerPaddleAnimation(paddleIndex);
                         PaddleInput.Instance.ProcessInput(direction);
+                    }
+                    break;
+
+                case ConstantClass.COUNTDOWN_RESPONSE:
+                    if (GameUIManager.Instance != null)
+                    {
+                        GameUIManager.Instance.UpdateCountdown(data);
+                    }
+                    break;
+
+                case ConstantClass.UPDATE_USER_LIST:
+                    if (LobbyUI.Instance != null)
+                    {
+                        ISFSArray userListArray = data.GetSFSArray("userList");
+                        string[] userNames = new string[userListArray.Size()];
+                        for (int i = 0; i < userListArray.Size(); i++)
+                        {
+                            userNames[i] = userListArray.GetUtfString(i);
+                        }
+                        LobbyUI.Instance.UpdatePlayerSlots(userNames);
                     }
                     break;
             }

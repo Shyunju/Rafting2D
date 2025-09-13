@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +13,10 @@ namespace Rafting
         [SerializeField] GameObject _titlePanel;
         [SerializeField] GameObject _selectPanel;
         [SerializeField] GameObject _waitPanel;
+
+        [Header("Waiting Room UI")]
+        [Tooltip("WatingPanel에 있는 플레이어 슬롯(GameObject)들을 순서대로 할당합니다.")]
+        [SerializeField] private List<GameObject> _playerSlots;
 
         /// <summary>
         /// Unity 에디터의 Start 버튼 OnClick() 이벤트에 이 함수를 연결해야 합니다.
@@ -90,6 +96,45 @@ namespace Rafting
         public void RaftingGameScene()
         {
             SceneManager.LoadScene("MainScene");
+        }
+
+        /// <summary>
+        /// 서버에서 받은 유저 목록으로 플레이어 슬롯 UI를 업데이트합니다.
+        /// </summary>
+        /// <param name="userNames">서버에서 받은 유저 이름 배열</param>
+        public void UpdatePlayerSlots(string[] userNames)
+        {
+            if (_playerSlots == null || _playerSlots.Count == 0)
+            {
+                Debug.LogError("Player slots are not assigned in LobbyUI.");
+                return;
+            }
+
+            for (int i = 0; i < _playerSlots.Count; i++)
+            {
+                // 현재 슬롯에 해당하는 유저가 있는지 확인합니다.
+                if (i < userNames.Length)
+                {
+                    // 유저가 있으면 슬롯을 활성화하고 이름을 설정합니다.
+                    _playerSlots[i].SetActive(true);
+                    
+                    // 이름 표시합니다.
+                    TextMeshProUGUI nameText = _playerSlots[i].GetComponentInChildren<TextMeshProUGUI>();
+                    if (nameText != null)
+                    {
+                        nameText.text = userNames[i];
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Player slot {i} is missing a TextMeshProUGUI component in its children.");
+                    }
+                }
+                else
+                {
+                    // 해당하는 유저가 없으면 슬롯을 비활성화합니다.
+                    _playerSlots[i].SetActive(false);
+                }
+            }
         }
     }
 }

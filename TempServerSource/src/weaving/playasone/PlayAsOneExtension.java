@@ -14,7 +14,6 @@ public class PlayAsOneExtension extends SFSExtension {
 	    addEventHandler(SFSEventType.USER_LOGIN, LoginHandler.class);
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, JoinRoomHandler.class);
 		addEventHandler(SFSEventType.USER_DISCONNECT, DisconnectHandler.class);
-	    addEventHandler(SFSEventType.USER_VARIABLES_UPDATE, UserVariablesHandler.class);
 	    addEventHandler(SFSEventType.ROOM_VARIABLES_UPDATE, RoomVariablesHandler.class);
     
 	    // Zone Level Request Handlers
