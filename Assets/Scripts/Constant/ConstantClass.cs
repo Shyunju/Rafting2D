@@ -25,6 +25,7 @@ namespace Rafting
         // Rafting Game
         public const string PADDLE_REQUEST = "40";
         public const string PADDLE_ANIMATION = "41";
+        public const string PADDLE_AI = "42";
 
         // WAITING ROOM
         public const string UPDATE_USER_LIST = "50";

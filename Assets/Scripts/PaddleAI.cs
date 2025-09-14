@@ -1,28 +1,18 @@
+using Sfs2X.Entities.Data;
+using Sfs2X.Requests;
 using UnityEngine;
-using System.Collections;
-using UnityEngine.AI;
 
 namespace Rafting
 {
     public class PaddleAI : MoveBoat
     {
-        [SerializeField] float _loopTime;
-        [SerializeField] float _enemySpeed;
-        protected override void Start()
-        {
-            base.Start();
-            _force = _enemySpeed;
-            StartCoroutine(SetDirectionCo());
-        }
+        static PaddleAI _instance;
 
-        IEnumerator SetDirectionCo()
+        public static PaddleAI Instance { get { return _instance; } }
+
+        void Awake()
         {
-            _paddleIdx = Random.Range(0, 4);
-            _paddles[_paddleIdx].SetTrigger("PushButton");
-            _dir = _paddleIdx % 2 == 0 ? -1 : 1;
-            StartCoroutine(MoveAndRotateCo(_dir, 1));
-            yield return new WaitForSeconds(_loopTime);
-            StartCoroutine(SetDirectionCo());
+            _instance = this;
         }
     }
 }

@@ -205,6 +205,17 @@ namespace Rafting
                     }
                     break;
 
+                case ConstantClass.PADDLE_AI: // AI Paddle
+                    if (PaddleAI.Instance != null)
+                    {
+                        Debug.Log("Received AI paddle command from server.");
+                        int paddleIndex = data.GetInt("pIdx");
+                        int direction = data.GetInt("dir");
+                        PaddleAI.Instance.TriggerPaddleAnimation(paddleIndex);
+                        PaddleAI.Instance.ProcessInput(direction);
+                    }
+                    break;
+
                 case ConstantClass.COUNTDOWN_RESPONSE:
                     if (GameUIManager.Instance != null)
                     {

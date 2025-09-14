@@ -25,6 +25,7 @@ public class ConstantClass {
 	// Rafting Game
 	public static final String PADDLE_REQUEST 		= "40";
 	public static final String PADDLE_ANIMATION 	= "41"; 
+	public static final String PADDLE_AI 			= "42"; 
 
 	// WAITING ROOM
 	public static final String UPDATE_USER_LIST 	= "50"; 

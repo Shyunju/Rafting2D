@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameRoomExtension extends SFSExtension {
 	private Room room;
 	private ScheduledFuture<?> countdownTask;
+	private ScheduledFuture<?> aiTask;
+	private BoatAIController aiController;
+	private static final int AI_LOOP_TIME_SECONDS = 500;
 	
 	@Override
 	public void init() {
@@ -52,6 +55,9 @@ public class GameRoomExtension extends SFSExtension {
 		if (countdownTask != null) {
 			countdownTask.cancel(true);
 		}
+		if (aiTask != null) {
+			aiTask.cancel(true);
+		}
 		super.destroy();
 	}
 	
@@ -84,6 +90,9 @@ public class GameRoomExtension extends SFSExtension {
 			} else {
 				// 카운트다운 종료 및 태스크 중지
 //				trace("Countdown finished.");
+				// 카운트다운 종료 후 AI 보트 컨트롤러 시작
+				this.aiController = new BoatAIController(this);
+				this.aiTask = SmartFoxServer.getInstance().getTaskScheduler().scheduleAtFixedRate(this.aiController, 0, AI_LOOP_TIME_SECONDS, TimeUnit.MILLISECONDS);
 				countdownTask.cancel(false);
 			}
 		}, 0, 1, TimeUnit.SECONDS);
