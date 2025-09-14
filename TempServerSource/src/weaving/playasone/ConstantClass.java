@@ -28,6 +28,10 @@ public class ConstantClass {
 
 	// WAITING ROOM
 	public static final String UPDATE_USER_LIST 	= "50"; 
+
+	// MAP GENERATION
+	public static final String GENERATE_MAP_REQUEST = "60";
+	public static final String MAP_DATA 			= "61";
 	
 	//HANDLER
 	public static final String KEEPALIVE			= "1000";

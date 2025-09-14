@@ -110,7 +110,7 @@ namespace Rafting
         // 서버에서 받아서 노의 애니메이션을 재생
         public void TriggerPaddleAnimation(int paddleIndex)
         {
-            Debug.Log($"Triggering paddle animation for paddle index: {paddleIndex}");
+            //Debug.Log($"Triggering paddle animation for paddle index: {paddleIndex}");
             if (paddleIndex >= 0 && paddleIndex < _paddles.Length)
             {
                 _paddles[paddleIndex].SetTrigger("PushButton");
@@ -142,6 +142,12 @@ namespace Rafting
         }
         IEnumerator GameOverCo()
         {
+            // NetWorkManager를 통해 방을 나가는 요청을 보냅니다.
+            if (NetWorkManager.Instance != null && NetWorkManager.Instance.IsConnected)
+            {
+                NetWorkManager.Instance.LeaveRoom();
+            }
+
             yield return new WaitForSeconds(3f);
             SceneManager.LoadScene("LobbyScene");
         }

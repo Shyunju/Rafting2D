@@ -29,6 +29,10 @@ namespace Rafting
         // WAITING ROOM
         public const string UPDATE_USER_LIST = "50";
 
+        // MAP GENERATION
+        public const string GENERATE_MAP_REQUEST = "60";
+        public const string MAP_DATA = "61";
+
         //HANDLER
         public const string KEEPALIVE = "1000";
 

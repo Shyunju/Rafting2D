@@ -5,6 +5,7 @@ using Sfs2X.Core;
 using Sfs2X.Entities;
 using Sfs2X.Requests;
 using Sfs2X.Entities.Data;
+using UnityEngine.SceneManagement;
 
 namespace Rafting
 {
@@ -23,6 +24,9 @@ namespace Rafting
         /// 서버에 연결되어 있는지 여부를 반환합니다.
         /// </summary>
         public bool IsConnected => _sfs != null && _sfs.IsConnected;
+
+        // --- Game Data Properties ---
+        public ISFSArray MapData { get; private set; }
 
         [Header("SFS2X Connection Settings")]
         [Tooltip("SFS2X 서버의 IP 주소 또는 도메인 이름")]
@@ -68,6 +72,7 @@ namespace Rafting
             _sfs.AddEventListener(SFSEvent.LOGIN_ERROR, OnLoginError);
             _sfs.AddEventListener(SFSEvent.ROOM_VARIABLES_UPDATE, OnRoomVariablesUpdate);
             _sfs.AddEventListener(SFSEvent.EXTENSION_RESPONSE, OnExtensionResponse);
+            _sfs.AddEventListener(SFSEvent.USER_EXIT_ROOM, OnUserExitRoom);
             //_sfs.AddEventListener(SFSEvent.UDP_INIT, OnUdpInit);
             //_sfs.AddEventListener(SFSEvent.UDP_INIT_ERROR, OnUdpInitError);
         }
@@ -90,6 +95,14 @@ namespace Rafting
             _sfs.Connect(cfg);
         }
 
+        public void LeaveRoom()
+        {
+            if (IsConnected && _sfs.LastJoinedRoom != null)
+            {
+                _sfs.Send(new LeaveRoomRequest());
+            }
+        }
+
 
         // --- SFS2X Event Handlers ---
         private void OnConnection(BaseEvent evt)
@@ -109,6 +122,12 @@ namespace Rafting
         private void OnConnectionLost(BaseEvent evt)
         {
             Debug.LogError("Connection lost. Reason: " + (string)evt.Params["reason"]);
+
+            // 이벤트 리스너를 모두 제거합니다.
+            _sfs.RemoveAllEventListeners();
+
+            // 로비 씬으로 돌아갑니다.
+            SceneManager.LoadScene("LobbyScene");
         }
 
         private void OnLogin(BaseEvent evt)
@@ -144,7 +163,6 @@ namespace Rafting
                 // 우리가 관심있는 변수(게임 상태)가 변경되었는지 확인합니다.
                 if (key == ConstantClass.ROOM_STATE)
                 {
-                    // 방 객체에서 키를 이용해 실제 변수 객체와 값을 가져옵니다.
                     var stateVar = room.GetVariable(ConstantClass.ROOM_STATE);
                     if (stateVar != null)
                     {
@@ -153,10 +171,17 @@ namespace Rafting
 
                         if (newState == ConstantClass.STATE_PLAYING)
                         {
-                            // TODO: 게임 시작에 따른 클라이언트 로직을 여기에 구현합니다.
-                            // 예: '게임 시작' 버튼 비활성화, 카운트다운 시작 등
                             LobbyUI.Instance?.RaftingGameScene();
                         }
+                    }
+                }
+                else if (key == ConstantClass.MAP_DATA)
+                {
+                    var mapDataVar = room.GetVariable(ConstantClass.MAP_DATA);
+                    if (mapDataVar != null)
+                    {
+                        MapData = mapDataVar.GetSFSArrayValue();
+                        Debug.Log("Map data received and stored in NetWorkManager.");
                     }
                 }
             }
@@ -172,7 +197,7 @@ namespace Rafting
                 case ConstantClass.PADDLE_ANIMATION: // Paddle Animation
                     if (PaddleInput.Instance != null)
                     {
-                        Debug.Log("Received paddle animation command from server.");
+                        //Debug.Log("Received paddle animation command from server.");
                         int paddleIndex = data.GetInt("pIdx");
                         int direction = data.GetInt("dir");
                         PaddleInput.Instance.TriggerPaddleAnimation(paddleIndex);
@@ -199,6 +224,43 @@ namespace Rafting
                         LobbyUI.Instance.UpdatePlayerSlots(userNames);
                     }
                     break;
+            }
+        }
+
+        private void OnUserExitRoom(BaseEvent evt)
+        {
+            Room room = (Room)evt.Params["room"];
+            User user = (User)evt.Params["user"];
+            Debug.Log($"User {user.Name} has left the room {room.Name}");
+
+            // 내가 나간 경우, LobbyUI에서 이미 UI 전환을 처리했으므로 아무것도 하지 않습니다.
+            if (user.IsItMe)
+            {
+                return;
+            }
+
+            // 다른 사람이 나갔을 경우, 현재 씬에 따라 적절한 UI 매니저를 업데이트합니다.
+            string currentScene = SceneManager.GetActiveScene().name;
+
+            if (currentScene == "LobbyScene")
+            {
+                if (LobbyUI.Instance != null)
+                {
+                    var userList = room.UserList;
+                    string[] userNames = new string[userList.Count];
+                    for (int i = 0; i < userList.Count; i++)
+                    {
+                        userNames[i] = userList[i].Name;
+                    }
+                    LobbyUI.Instance.UpdatePlayerSlots(userNames);
+                }
+            }
+            else if (currentScene == "MainScene")
+            {
+                if (GameUIManager.Instance != null)
+                {
+                    GameUIManager.Instance.UpdatePlayerList(room.UserList);
+                }
             }
         }
 

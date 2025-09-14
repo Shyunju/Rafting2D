@@ -26,13 +26,18 @@ namespace Rafting
             _selectPanel.SetActive(true);
             _titlePanel.SetActive(false);
 
-            Debug.Log("Start button clicked. Attempting to connect to the server...");
-
-            // NetWorkManager는 싱글톤이므로 Instance를 통해 쉽게 접근할 수 있습니다.
             if (NetWorkManager.Instance != null)
             {
-                // NetWorkManager의 Connect 메서드를 호출합니다.
-                NetWorkManager.Instance.Connect();
+                // 아직 연결되지 않았을 때만 연결을 시도합니다.
+                if (!NetWorkManager.Instance.IsConnected)
+                {
+                    Debug.Log("Start button clicked. Attempting to connect to the server...");
+                    NetWorkManager.Instance.Connect();
+                }
+                else
+                {
+                    Debug.Log("Already connected to the server.");
+                }
             }
             else
             {
@@ -96,6 +101,29 @@ namespace Rafting
         public void RaftingGameScene()
         {
             SceneManager.LoadScene("MainScene");
+        }
+
+        /// <summary>
+        /// 게임 룸에서 나가는 요청을 보냅니다.
+        /// '나가기' 버튼의 OnClick() 이벤트에 연결합니다.
+        /// </summary>
+        public void OnLeaveRoomClick()
+        {
+            Debug.Log("Leave Room button clicked.");
+
+            // NetWorkManager를 통해 방을 나가는 요청을 보냅니다.
+            if (NetWorkManager.Instance != null && NetWorkManager.Instance.IsConnected)
+            {
+                NetWorkManager.Instance.LeaveRoom();
+            }
+            else
+            {
+                Debug.LogError("NetWorkManager is not connected.");
+            }
+
+            // UI를 대기실(waitPanel)에서 선택 화면(selectPanel)으로 전환합니다.
+            _waitPanel.SetActive(false);
+            _selectPanel.SetActive(true);
         }
 
         /// <summary>
