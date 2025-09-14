@@ -208,7 +208,7 @@ namespace Rafting
                 case ConstantClass.PADDLE_AI: // AI Paddle
                     if (PaddleAI.Instance != null)
                     {
-                        Debug.Log("Received AI paddle command from server.");
+                        //Debug.Log("Received AI paddle command from server.");
                         int paddleIndex = data.GetInt("pIdx");
                         int direction = data.GetInt("dir");
                         PaddleAI.Instance.TriggerPaddleAnimation(paddleIndex);
