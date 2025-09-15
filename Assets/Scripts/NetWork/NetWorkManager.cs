@@ -199,9 +199,21 @@ namespace Rafting
                     {
                         //Debug.Log("Received paddle animation command from server.");
                         int paddleIndex = data.GetInt("pIdx");
-                        int direction = data.GetInt("dir");
                         PaddleInput.Instance.TriggerPaddleAnimation(paddleIndex);
-                        PaddleInput.Instance.ProcessInput(direction);
+                    }
+                    break;
+
+                case ConstantClass.BOAT_SYNC:
+                    if (PaddleInput.Instance != null)
+                    {
+                        MoveBoat boat = PaddleInput.Instance.GetComponent<MoveBoat>();
+                        if (boat != null)
+                        {
+                            float x = data.GetFloat("x");
+                            float y = data.GetFloat("y");
+                            float rot = data.GetFloat("rot");
+                            boat.UpdateStateFromServer(x, y, rot);
+                        }
                     }
                     break;
 
@@ -212,7 +224,7 @@ namespace Rafting
                         int paddleIndex = data.GetInt("pIdx");
                         int direction = data.GetInt("dir");
                         PaddleAI.Instance.TriggerPaddleAnimation(paddleIndex);
-                        PaddleAI.Instance.ProcessInput(direction);
+                        //PaddleAI.Instance.ProcessInput(direction);
                     }
                     break;
 

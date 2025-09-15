@@ -41,7 +41,7 @@ public class BoatAIController implements Runnable {
                 List<User> userList = extension.getParentRoom().getUserList();
                 extension.send(ConstantClass.PADDLE_AI, data, userList);
 
-                extension.trace(String.format("AI Paddle: index=%d, direction=%d", paddleIndex, direction));
+//                extension.trace(String.format("AI Paddle: index=%d, direction=%d", paddleIndex, direction));
             }
         } catch (Exception e) {
             extension.trace("Error in BoatAIController task: " + e.getMessage());

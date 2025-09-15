@@ -6,10 +6,7 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 
-
 public class PaddleRequestHandler extends BaseClientRequestHandler {
-
-//    private static final float MOVE_STEP = 0.1f; // Define a small movement step
 
     @Override
     public void handleClientRequest(User sender, ISFSObject params) {
@@ -22,11 +19,19 @@ public class PaddleRequestHandler extends BaseClientRequestHandler {
             return;
         }
 
-        // Send PADDLE_ANIMATION
-        ISFSObject animationResponse = new SFSObject();
-        animationResponse.putInt("pIdx", pIdx); 
-        animationResponse.putInt("dir", dir); 
-        send(ConstantClass.PADDLE_ANIMATION, animationResponse, currentRoom.getUserList());
+        // 확장 가져오기
+        GameRoomExtension extension = (GameRoomExtension) getParentExtension();
+        Boat boat = extension.getBoat();
 
+        if (boat != null) {
+            // 보트 객체에 입력 전달
+            boat.processInput(dir);
+        }
+
+        // 다른 모든 클라이언트에게 애니메이션을 재생하도록 알림
+        ISFSObject animationResponse = new SFSObject();
+        animationResponse.putInt("pIdx", pIdx);
+//        send(ConstantClass.PADDLE_ANIMATION, animationResponse, currentRoom.getUsersInRoomBut(sender));
+        send(ConstantClass.PADDLE_ANIMATION, animationResponse, currentRoom.getUserList());
     }
 }
