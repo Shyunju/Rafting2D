@@ -13,9 +13,11 @@ import java.util.List;
 public class BoatAIController implements Runnable {
 
     private final SFSExtension extension;
+    private final Boat aiBoat; // Add this
 
-    public BoatAIController(SFSExtension extension) {
+    public BoatAIController(SFSExtension extension, Boat aiBoat) { // Modify constructor
         this.extension = extension;
+        this.aiBoat = aiBoat; // Assign aiBoat
     }
 
     @Override
@@ -32,14 +34,14 @@ public class BoatAIController implements Runnable {
                 // 패들 인덱스에 따라 방향 결정 (짝수: -1, 홀수: 1)
                 int direction = (paddleIndex % 2 == 0) ? -1 : 1;
 
-                // 클라이언트에 보낼 데이터 생성
+                // 1. Control the AI boat on the server
+                aiBoat.processInput(direction); // This will update the aiBoat's velocity
+
+                // 2. Send animation command to clients
                 ISFSObject data = new SFSObject();
                 data.putInt("pIdx", paddleIndex);
-                data.putInt("dir", direction);
-
-                // 현재 룸의 모든 유저에게 PADDLE_AI 명령 전송
-                List<User> userList = extension.getParentRoom().getUserList();
-                extension.send(ConstantClass.PADDLE_AI, data, userList);
+                // data.putInt("dir", direction); // Not strictly needed for animation, but good for consistency
+                extension.send(ConstantClass.PADDLE_AI, data, extension.getParentRoom().getUserList());
 
 //                extension.trace(String.format("AI Paddle: index=%d, direction=%d", paddleIndex, direction));
             }

@@ -21,7 +21,8 @@ public class PaddleRequestHandler extends BaseClientRequestHandler {
 
         // 확장 가져오기
         GameRoomExtension extension = (GameRoomExtension) getParentExtension();
-        Boat boat = extension.getBoat();
+        // Get the player's boat using its ID
+        Boat boat = extension.getBoat("playerBoat"); // Use the fixed ID for the player boat
 
         if (boat != null) {
             // 보트 객체에 입력 전달

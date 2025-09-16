@@ -6,6 +6,7 @@ using Sfs2X.Entities;
 using Sfs2X.Requests;
 using Sfs2X.Entities.Data;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic; // Added for Dictionary
 
 namespace Rafting
 {
@@ -27,6 +28,31 @@ namespace Rafting
 
         // --- Game Data Properties ---
         public ISFSArray MapData { get; private set; }
+
+        // --- Boat Management ---
+        private Dictionary<string, MoveBoat> _boats = new Dictionary<string, MoveBoat>();
+
+        public void RegisterBoat(string boatId, MoveBoat boat)
+        {
+            if (!_boats.ContainsKey(boatId))
+            {
+                _boats.Add(boatId, boat);
+                Debug.Log($"Registered boat: {boatId}");
+            }
+            else
+            {
+                Debug.LogWarning($"Boat with ID {boatId} already registered.");
+            }
+        }
+
+        public void UnregisterBoat(string boatId)
+        {
+            if (_boats.ContainsKey(boatId))
+            {
+                _boats.Remove(boatId);
+                Debug.Log($"Unregistered boat: {boatId}");
+            }
+        }
 
         [Header("SFS2X Connection Settings")]
         [Tooltip("SFS2X 서버의 IP 주소 또는 도메인 이름")]
@@ -204,16 +230,17 @@ namespace Rafting
                     break;
 
                 case ConstantClass.BOAT_SYNC:
-                    if (PaddleInput.Instance != null)
+                    string boatId = data.GetUtfString("boatId"); // Get the boat ID
+                    if (_boats.TryGetValue(boatId, out MoveBoat boatToUpdate))
                     {
-                        MoveBoat boat = PaddleInput.Instance.GetComponent<MoveBoat>();
-                        if (boat != null)
-                        {
-                            float x = data.GetFloat("x");
-                            float y = data.GetFloat("y");
-                            float rot = data.GetFloat("rot");
-                            boat.UpdateStateFromServer(x, y, rot);
-                        }
+                        float x = data.GetFloat("x");
+                        float y = data.GetFloat("y");
+                        float rot = data.GetFloat("rot");
+                        boatToUpdate.UpdateStateFromServer(x, y, rot);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Received BOAT_SYNC for unknown boatId: {boatId}");
                     }
                     break;
 

@@ -1,3 +1,5 @@
+using Sfs2X.Entities.Data;
+using Sfs2X.Requests;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,12 +23,30 @@ namespace Rafting
 
         // 보간에 사용될 변수
         private float _interpolationSpeed = 20f; // 보간 속도, 필요에 따라 조정
+        private bool _isCollidingWithRock = false; // 바위와 충돌 중인지 여부
+        public string boatId; // Unique ID for this boat instance
 
         protected virtual void Start()
         {
             _rigidbody = GetComponent<Rigidbody2D>();
             _serverPosition = _rigidbody.position;
             _serverRotation = _rigidbody.rotation;
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (NetWorkManager.Instance != null && !string.IsNullOrEmpty(boatId))
+            {
+                NetWorkManager.Instance.RegisterBoat(boatId, this);
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (NetWorkManager.Instance != null && !string.IsNullOrEmpty(boatId))
+            {
+                NetWorkManager.Instance.UnregisterBoat(boatId);
+            }
         }
 
         void FixedUpdate()
@@ -54,6 +74,59 @@ namespace Rafting
             {
                 _paddles[paddleIndex].SetTrigger("PushButton");
             }
+        }
+
+        private void SendCollisionReport(float normalX, float normalY)
+        {
+            var sfs = NetWorkManager.Instance.Sfs;
+            if (sfs != null && sfs.LastJoinedRoom != null)
+            {
+                ISFSObject data = new SFSObject();
+                data.PutFloat("x", transform.position.x);
+                data.PutFloat("y", transform.position.y);
+                data.PutFloat("rot", _rigidbody.rotation);
+                data.PutFloat("normalX", normalX);
+                data.PutFloat("normalY", normalY);
+                data.PutUtfString("boatId", this.boatId); // Add boatId
+                
+                sfs.Send(new ExtensionRequest(ConstantClass.COLLISION_REPORT, data, sfs.LastJoinedRoom, false)); 
+            }
+        }
+
+        void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag("Rock"))
+            {
+                if (_isCollidingWithRock) return; // 이미 바위 충돌 처리 중이면 중복 실행 방지
+
+                _isCollidingWithRock = true;
+                // Extract collision normal
+                Vector2 normal = collision.contacts[0].normal;
+                StartCoroutine(HandleRockCollision(normal.x, normal.y)); // Pass normal to coroutine
+            }
+        }
+
+        void OnCollisionExit2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag("Rock"))
+            {
+                // 코루틴이 끝나기 전에 바위에서 떨어지는 경우를 대비하여 플래그 리셋
+                _isCollidingWithRock = false;
+            }
+        }
+
+        IEnumerator HandleRockCollision(float normalX, float normalY)
+        {
+            // Switch to Kinematic to prevent jitter and sliding
+            _rigidbody.bodyType = RigidbodyType2D.Kinematic;
+            SendCollisionReport(normalX, normalY);
+
+            // Wait for a short duration, slightly longer than the server's input block
+            yield return new WaitForSeconds(0.35f);
+
+            // Revert to Dynamic to allow player control again
+            _rigidbody.bodyType = RigidbodyType2D.Dynamic;
+            // _isCollidingWithRock 플래그는 OnCollisionExit2D에서만 리셋됩니다.
         }
 
         void OnTriggerEnter2D(Collider2D collision)

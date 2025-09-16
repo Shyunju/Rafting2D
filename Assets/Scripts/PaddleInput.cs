@@ -15,6 +15,7 @@ namespace Rafting
         void Awake()
         {
             _instance = this;
+            this.boatId = "playerBoat"; // Set the boatId for this player boat
         }
 
         protected override void Start()

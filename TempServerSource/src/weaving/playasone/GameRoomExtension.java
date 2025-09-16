@@ -10,6 +10,8 @@ import com.smartfoxserver.v2.extensions.SFSExtension;
 import com.smartfoxserver.v2.entities.variables.RoomVariable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,7 +22,7 @@ public class GameRoomExtension extends SFSExtension {
     private ScheduledFuture<?> aiTask;
     private ScheduledFuture<?> gameLoopTask;
     private BoatAIController aiController;
-    private Boat boat;
+    private Map<String, Boat> boats; // Changed from single Boat to a Map of Boats
 
     private static final int AI_LOOP_TIME_SECONDS = 500;
     private static final int GAME_LOOP_INTERVAL_MS = 50; // 20 updates per second
@@ -29,10 +31,18 @@ public class GameRoomExtension extends SFSExtension {
     @Override
     public void init() {
         this.room = getParentRoom();
-        this.boat = new Boat(this);
+        this.boats = new HashMap<>(); // Initialize the map
+        // Create player boat (assuming room owner is the player for now)
+        Boat playerBoat = new Boat(this);
+        boats.put("playerBoat", playerBoat); // Use a fixed ID for the player boat
+        // Create AI boat
+        Boat aiBoat = new Boat(this, -3f, 3.81f, 0f);
+        boats.put("aiBoat", aiBoat); // Use a fixed ID for the AI boat
+
         trace("GameRoomExtension (Room Level) initializing for Room: " + room.getName());
 
         addRequestHandler(ConstantClass.PADDLE_REQUEST, PaddleRequestHandler.class);
+        addRequestHandler(ConstantClass.COLLISION_REPORT, CollisionReportHandler.class);
 
         addEventHandler(SFSEventType.ROOM_VARIABLES_UPDATE, (event) -> {
             @SuppressWarnings("unchecked")
@@ -57,7 +67,10 @@ public class GameRoomExtension extends SFSExtension {
         if (countdownTask != null) countdownTask.cancel(true);
         if (aiTask != null) aiTask.cancel(true);
         if (gameLoopTask != null) gameLoopTask.cancel(true);
-        if (boat != null) boat.shutdown();
+        // Shutdown all boats
+        for (Boat b : boats.values()) {
+            b.shutdown();
+        }
         super.destroy();
     }
 
@@ -87,7 +100,7 @@ public class GameRoomExtension extends SFSExtension {
                 startGameLoop();
                 
                 // AI 보트 컨트롤러 시작
-                this.aiController = new BoatAIController(this);
+                this.aiController = new BoatAIController(this, boats.get("aiBoat")); // Pass the AI boat
                 this.aiTask = SmartFoxServer.getInstance().getTaskScheduler().scheduleAtFixedRate(this.aiController, 0, AI_LOOP_TIME_SECONDS, TimeUnit.MILLISECONDS);
             }
         }, 0, 1, TimeUnit.SECONDS);
@@ -100,14 +113,22 @@ public class GameRoomExtension extends SFSExtension {
             long now = System.nanoTime();
             float deltaTime = (now - lastUpdateTime) / 1_000_000_000.0f;
             lastUpdateTime = now;
-            boat.update(deltaTime);
+            
+            // Update all boats and send their states
+            for (Map.Entry<String, Boat> entry : boats.entrySet()) {
+                String boatId = entry.getKey();
+                Boat currentBoat = entry.getValue();
 
-            ISFSObject boatData = boat.toSFSObject();
-            send(ConstantClass.BOAT_SYNC, boatData, room.getUserList());
+                currentBoat.update(deltaTime);
+
+                ISFSObject boatData = currentBoat.toSFSObject();
+                boatData.putText("boatId", boatId); // Add boat ID to the data
+                send(ConstantClass.BOAT_SYNC, boatData, room.getUserList());
+            }
         }, 0, GAME_LOOP_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
-    public Boat getBoat() {
-        return this.boat;
+    public Boat getBoat(String boatId) {
+        return boats.get(boatId);
     }
 }
